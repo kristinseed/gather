@@ -1,0 +1,53 @@
+# gather. — Roadmap Hooks Reference
+
+Version 1.0 | Schema fields that exist now but have no v1 UI
+
+The fields and tables in this document are intentionally dormant. They exist in the schema so future features have clean data to work with. Do not build UI for any of these in v1. Do not remove them from the schema.
+
+---
+
+## Dormant fields (exist on v1 tables, no UI yet)
+
+| Field | Table | Type | What it enables | When to activate |
+|---|---|---|---|---|
+| engagement_score | membership | float | Scores how engaged a member is based on activity — RSVPs, memory uploads, comms opens | After 6 months of real usage data |
+| involvement_rung | membership | int | Ladder from passive member to active leader — used for giving and volunteer asks | After engagement scoring is running |
+| giving_interest | person | boolean | Self-selected flag — member has indicated interest in giving/donations. Never inferred. | Separate product phase (endowment/giving feature) |
+| verification_config | tenant | jsonb | Question bank and auto-approval rules for join verification | After manual approval workflow is stable |
+| trust_score | join_request | float | AI-assisted confidence score for join request legitimacy | After verification_config is built |
+| discoverable | vendor_profile | boolean | Whether vendor appears in the public marketplace directory | When vendor marketplace launches |
+| avg_rating | vendor_profile | float | Aggregate rating from vendor bookings | When vendor marketplace launches |
+
+---
+
+## Dormant tables (exist in schema, no UI yet)
+
+| Table | What it enables | When to activate |
+|---|---|---|
+| notification_trigger | Rules that watch the activity_event stream and fire outbound notifications automatically (e.g. "71 members haven't opened invitation — send reminder") | v1.5, after manual nudge on dashboard is validated |
+| vendor_profile | Public vendor directory — caterers, venues, photographers who want to be discovered by reunion orgs | After 20+ vendor bookings exist in the system organically |
+| org_group | Parent org structure — national fraternities, school districts, family associations that manage multiple tenants | When first national org signs up |
+| merge_log | Audit trail for identity resolution merges — who merged whom, when, what evidence | Activates automatically when first merge happens; no UI needed until admin audit view is built |
+| sponsor | Per-event sponsorship tracking | Alongside vendor marketplace |
+
+---
+
+## Activity Event table — special note
+
+The activity_event table is NOT dormant — it should be written to in v1 for every meaningful action. What is dormant is the consumption layer: engagement scoring, notification triggers, and org group reporting all read from this table but don't exist yet.
+
+Write to activity_event now for: RSVPs, profile updates, media uploads, invitation sends, join request approvals, payment completions, communication sends.
+
+The schema for activity_event is intentionally generic (actor_id, action_type, object_type, object_id, metadata jsonb) so any future consumer can query it without a migration.
+
+---
+
+## Migration notes for when roadmap features activate
+
+**Engagement scoring:** Add a scheduled Supabase Edge Function that calculates engagement_score on membership records nightly. No schema migration needed.
+
+**Notification triggers:** The notification_trigger table defines rules. A new Edge Function reads activity_event, evaluates rules, and fires notifications. No schema migration needed.
+
+**Vendor marketplace:** Set discoverable = true on vendor_profile records to opt vendors into the directory. Add a public RLS policy for discoverable vendors. No schema migration needed.
+
+**Org group reporting:** Org group records already exist. Aggregate queries run across tenants where org_group_id matches. Add RLS policy for org group admins. No schema migration needed.
