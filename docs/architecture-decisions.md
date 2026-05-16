@@ -91,3 +91,18 @@ This document captures the key architectural decisions made for Gather and the r
 | Deployment | Vercel | Git-connected, automatic deploys, generous free tier |
 | Version control | GitHub | Industry standard, integrates with Lovable and Vercel |
 | Styling | Tailwind CSS + CSS custom properties | Tenant theming via CSS variables without runtime overhead |
+
+## ADR-009: Four-level hierarchy — org_group → tenant → event → event_session
+
+**Decision:** The data model has four levels: org_group (parent organization), tenant (reunion class or chapter), event (the gathering), and event_session (discrete sub-event within a gathering).
+
+**Why:** Real reunions are not single events. A 40th reunion weekend has a Friday night reception, a Saturday dinner, a Sunday brunch, and a golf outing. Each has its own headcount, venue, capacity, and optional RSVP. Flattening these into one event record forces ugly workarounds. A session layer makes the data match reality.
+
+The org_group level exists because some organizations span multiple tenants — a high school has a Class of 1986 and a Class of 1990, both under the same school. Org_group gives the school-level admin an aggregate view without collapsing the tenant boundaries that keep member data isolated.
+
+**Trade-off accepted:** More joins in queries. Worth it — the alternative is JSONB blobs or denormalized event records that become unmaintainable as soon as a real multi-session reunion tries to use the system.
+
+**Implementation rules:**
+- event_session is always a child of event — never render sessions without parent event context
+- session_attendee only exists when requires_separate_rsvp = true on the session
+- org_group membership rows use org_group_id with tenant_id null; tenant membership rows use tenant_id with org_group_id null — never both
