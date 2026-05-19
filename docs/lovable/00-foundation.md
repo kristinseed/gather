@@ -48,6 +48,8 @@ All environment variables in `.env.local`. Never inline credentials anywhere els
 
 ## PART 3 — CSS design tokens
 
+Note: Tokens live in src/styles.css per Tailwind v4 convention, not a separate src/styles/tokens.css. All token additions go in that single file.
+
 Create `src/styles/tokens.css`. This is the single source of truth for every color, font, spacing, and shadow value in the app. Import it in `src/main.tsx` or `src/index.css` before anything else.
 
 ```css
@@ -171,6 +173,7 @@ h1, h2, h3, h4, h5, h6 {
 
 ## PART 4 — Context providers
 
+Note: Lovable placed context providers in src/hooks/ not src/context/. AuthProvider lives at src/hooks/use-gather-auth.tsx, TenantBrandingProvider at src/hooks/use-tenant-branding.tsx. Reference these paths in all future prompts."
 ### 4a — AuthContext
 
 Create `src/context/AuthContext.tsx`:
@@ -416,6 +419,8 @@ Used at the top of every admin page below TopBar
 *Lovable uses TanStack Start with file-based routing. Routes are defined by file location in `src/routes/`. Do not create a React Router `<Routes>` table. Do not install react-router-dom.*
 
 Route prefix: all org/tenant routes use /o/$orgGroupSlug/$tenantSlug/ not bare slugs. /me/ for authenticated user profile. /platform/ for super admin. This is intentional — bare dynamic root segments break other routes.
+
+Routes use two-segment org prefix: /o/$orgGroupSlug/$tenantSlug/ — not a single $tenantSlug. orgGroupSlug identifies the parent org_group, tenantSlug identifies the class or chapter beneath it
 ---
 
 ## How TanStack Start file-based routing works
