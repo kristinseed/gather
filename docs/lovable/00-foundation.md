@@ -411,66 +411,195 @@ Used at the top of every admin page below TopBar
 
 ---
 
-## PART 7 — Route structure
+# PART 7 — Route structure (TanStack Start file-based routing)
 
-Set up React Router with the following routes. Every route is listed with its guard level.
+*Lovable uses TanStack Start with file-based routing. Routes are defined by file location in `src/routes/`. Do not create a React Router `<Routes>` table. Do not install react-router-dom.*
+
+---
+
+## How TanStack Start file-based routing works
+
+Each file in `src/routes/` maps directly to a URL. Dynamic segments use `$` prefix. Nested layouts use `_layout.tsx` files. Every route file exports a `createFileRoute()` call.
+
+---
+
+## File structure to create
 
 ```
-PUBLIC (no auth required):
-/                                    → <LandingPage />
-/login                               → <LoginPage />  [AuthShell]
-/invite/:token                       → <InvitationAcceptPage />  [AuthShell]
-/unauthorized                        → <UnauthorizedPage />
-
-AUTHENTICATED (session required, no membership check):
-/onboarding/*                        → <OnboardingFlow />
-
-TENANT MEMBER (TenantGuard requiredRole="member"):
-/:orgGroupSlug/:tenantSlug/          → <MemberHome />         [AppShell mobile]
-/:orgGroupSlug/:tenantSlug/events/:eventId  → <EventDetail />
-/:orgGroupSlug/:tenantSlug/events/:eventId/sessions/:sessionId → <SessionDetail />
-/:orgGroupSlug/:tenantSlug/rsvp      → <RSVPFlow />
-/:orgGroupSlug/:tenantSlug/pay/:attendeeRecordId → <PaymentFlow />
-/:orgGroupSlug/:tenantSlug/directory → <MemberDirectory />
-/:orgGroupSlug/:tenantSlug/memories  → <MemoryWall />
-/:orgGroupSlug/:tenantSlug/profile   → <MemberProfile />
-
-TENANT ADMIN (TenantGuard requiredRole="admin"):
-/:orgGroupSlug/:tenantSlug/admin/              → <AdminDashboard />        [AdminShell]
-/:orgGroupSlug/:tenantSlug/admin/members       → <MemberManagement />
-/:orgGroupSlug/:tenantSlug/admin/members/join-requests → <JoinRequestQueue />
-/:orgGroupSlug/:tenantSlug/admin/events        → <EventManagement />
-/:orgGroupSlug/:tenantSlug/admin/events/:eventId → <EventEdit />
-/:orgGroupSlug/:tenantSlug/admin/comms         → <Communications />
-/:orgGroupSlug/:tenantSlug/admin/payments      → <PaymentOverview />
-/:orgGroupSlug/:tenantSlug/admin/sponsors      → <SponsorManagement />
-/:orgGroupSlug/:tenantSlug/admin/vendors       → <VendorManagement />
-/:orgGroupSlug/:tenantSlug/admin/subgroups     → <SubgroupManagement />
-/:orgGroupSlug/:tenantSlug/admin/branding      → <BrandingSettings />
-/:orgGroupSlug/:tenantSlug/admin/settings      → <OrgSettings />
-
-ORG GROUP ADMIN (TenantGuard requiredRole="org_admin"):
-/:orgGroupSlug/admin/                → <OrgGroupDashboard />   [AdminShell]
-/:orgGroupSlug/admin/groups          → <TenantList />
-/:orgGroupSlug/admin/members         → <OrgMemberList />
-/:orgGroupSlug/admin/settings        → <OrgGroupSettings />
-
-VENDOR (authenticated, booking-scoped):
-/vendor/                             → <VendorHome />
-/vendor/:bookingId/                  → <VendorBookingDetail />
-/vendor/:bookingId/profile           → <VendorProfileEdit />
-
-SUPER ADMIN (TenantGuard requiredRole="super_admin"):
-/platform/                           → <PlatformDashboard />   [AdminShell]
-/platform/org-groups                 → <OrgGroupManagement />
-/platform/tenants                    → <TenantManagement />
-/platform/people                     → <PeopleManagement />
-/platform/lookup-tables              → <LookupTableManager />
-/platform/settings                   → <PlatformSettings />
+src/routes/
+  __root.tsx                                         → root layout, wraps entire app in AppErrorBoundary + AuthProvider
+  index.tsx                                          → / (public landing)
+  login.tsx                                          → /login [AuthShell]
+  unauthorized.tsx                                   → /unauthorized
+  invite/
+    $token.tsx                                       → /invite/:token [AuthShell]
+  onboarding/
+    _layout.tsx                                      → /onboarding/* wrapper [AuthShell, session required]
+    index.tsx                                        → /onboarding (dark mode step)
+    find.tsx                                         → /onboarding/find (find your org)
+    claim.tsx                                        → /onboarding/claim (claim your record)
+    pending.tsx                                      → /onboarding/pending (join request sent)
+  vendor/
+    index.tsx                                        → /vendor (vendor home, booking list)
+    $bookingId/
+      index.tsx                                      → /vendor/:bookingId (booking logistics)
+      profile.tsx                                    → /vendor/:bookingId/profile (vendor profile edit)
+  platform/
+    _layout.tsx                                      → /platform/* wrapper [TenantGuard super_admin, AdminShell]
+    index.tsx                                        → /platform (platform dashboard)
+    org-groups.tsx                                   → /platform/org-groups
+    tenants.tsx                                      → /platform/tenants
+    people.tsx                                       → /platform/people
+    lookup-tables.tsx                                → /platform/lookup-tables
+    settings.tsx                                     → /platform/settings
+  $orgGroupSlug/
+    index.tsx                                        → /:orgGroupSlug (org group public page)
+    admin/
+      _layout.tsx                                    → /:orgGroupSlug/admin/* wrapper [TenantGuard org_admin, AdminShell]
+      index.tsx                                      → /:orgGroupSlug/admin (org group dashboard)
+      groups.tsx                                     → /:orgGroupSlug/admin/groups
+      members.tsx                                    → /:orgGroupSlug/admin/members
+      settings.tsx                                   → /:orgGroupSlug/admin/settings
+    $tenantSlug/
+      _layout.tsx                                    → /:orgGroupSlug/:tenantSlug/* wrapper [TenantProvider, TenantGuard member, AppShell mobile]
+      index.tsx                                      → /:orgGroupSlug/:tenantSlug (member home)
+      directory.tsx                                  → /:orgGroupSlug/:tenantSlug/directory
+      memories.tsx                                   → /:orgGroupSlug/:tenantSlug/memories
+      profile.tsx                                    → /:orgGroupSlug/:tenantSlug/profile
+      rsvp.tsx                                       → /:orgGroupSlug/:tenantSlug/rsvp
+      pay/
+        $attendeeRecordId.tsx                        → /:orgGroupSlug/:tenantSlug/pay/:attendeeRecordId
+      events/
+        $eventId/
+          index.tsx                                  → /:orgGroupSlug/:tenantSlug/events/:eventId
+          sessions/
+            $sessionId/
+              index.tsx                              → /:orgGroupSlug/:tenantSlug/events/:eventId/sessions/:sessionId
+              rsvp.tsx                               → /:orgGroupSlug/:tenantSlug/events/:eventId/sessions/:sessionId/rsvp
+      admin/
+        _layout.tsx                                  → /:orgGroupSlug/:tenantSlug/admin/* wrapper [TenantGuard admin, AdminShell]
+        index.tsx                                    → /:orgGroupSlug/:tenantSlug/admin (admin dashboard)
+        members/
+          index.tsx                                  → /:orgGroupSlug/:tenantSlug/admin/members
+          join-requests.tsx                          → /:orgGroupSlug/:tenantSlug/admin/members/join-requests
+        events/
+          index.tsx                                  → /:orgGroupSlug/:tenantSlug/admin/events
+          $eventId.tsx                               → /:orgGroupSlug/:tenantSlug/admin/events/:eventId
+        comms.tsx                                    → /:orgGroupSlug/:tenantSlug/admin/comms
+        payments.tsx                                 → /:orgGroupSlug/:tenantSlug/admin/payments
+        sponsors.tsx                                 → /:orgGroupSlug/:tenantSlug/admin/sponsors
+        vendors.tsx                                  → /:orgGroupSlug/:tenantSlug/admin/vendors
+        subgroups.tsx                                → /:orgGroupSlug/:tenantSlug/admin/subgroups
+        branding.tsx                                 → /:orgGroupSlug/:tenantSlug/admin/branding
+        settings.tsx                                 → /:orgGroupSlug/:tenantSlug/admin/settings
 ```
 
-Wrap the router in `AuthProvider` at the root. Wrap tenant-scoped routes in `TenantProvider`. Wrap the entire app in `AppErrorBoundary`.
+---
 
+## Route file patterns
+
+### Root layout (`src/routes/__root.tsx`)
+```tsx
+import { createRootRoute, Outlet } from '@tanstack/react-router'
+import { AuthProvider } from '@/context/AuthContext'
+import { AppErrorBoundary } from '@/components/layout/AppErrorBoundary'
+
+export const Route = createRootRoute({
+  component: () => (
+    <AppErrorBoundary>
+      <AuthProvider>
+        <Outlet />
+      </AuthProvider>
+    </AppErrorBoundary>
+  ),
+})
+```
+
+### Public route example (`src/routes/login.tsx`)
+```tsx
+import { createFileRoute } from '@tanstack/react-router'
+import { LoginPage } from '@/pages/LoginPage'
+
+export const Route = createFileRoute('/login')({
+  component: LoginPage,
+})
+```
+
+### Layout file example (`src/routes/$orgGroupSlug/$tenantSlug/_layout.tsx`)
+```tsx
+import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { TenantProvider } from '@/context/TenantContext'
+import { TenantGuard } from '@/components/layout/TenantGuard'
+import { AppShell } from '@/components/layout/AppShell'
+
+export const Route = createFileRoute('/$orgGroupSlug/$tenantSlug/_layout')({
+  component: () => (
+    <TenantProvider>
+      <TenantGuard requiredRole="member">
+        <AppShell>
+          <Outlet />
+        </AppShell>
+      </TenantGuard>
+    </TenantProvider>
+  ),
+})
+```
+
+### Admin layout example (`src/routes/$orgGroupSlug/$tenantSlug/admin/_layout.tsx`)
+```tsx
+import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { TenantGuard } from '@/components/layout/TenantGuard'
+import { AdminShell } from '@/components/layout/AdminShell'
+
+export const Route = createFileRoute('/$orgGroupSlug/$tenantSlug/admin/_layout')({
+  component: () => (
+    <TenantGuard requiredRole="admin">
+      <AdminShell>
+        <Outlet />
+      </AdminShell>
+    </TenantGuard>
+  ),
+})
+```
+
+### Reading URL params in a route file
+```tsx
+// Access dynamic segments via useParams()
+import { useParams } from '@tanstack/react-router'
+
+const { orgGroupSlug, tenantSlug } = useParams({
+  from: '/$orgGroupSlug/$tenantSlug/_layout'
+})
+```
+
+---
+
+## Guard levels by layout file
+
+| Layout file | Guard | Shell |
+|---|---|---|
+| `__root.tsx` | None | AppErrorBoundary + AuthProvider |
+| `onboarding/_layout.tsx` | Session required, no membership check | AuthShell |
+| `$orgGroupSlug/$tenantSlug/_layout.tsx` | TenantGuard member | AppShell (mobile) |
+| `$orgGroupSlug/$tenantSlug/admin/_layout.tsx` | TenantGuard admin | AdminShell (desktop) |
+| `$orgGroupSlug/admin/_layout.tsx` | TenantGuard org_admin | AdminShell (desktop) |
+| `platform/_layout.tsx` | TenantGuard super_admin | AdminShell (desktop) |
+
+---
+
+## Important rules
+
+- Every route file uses `createFileRoute()` — never `createRoute()` or JSX route definitions
+- Dynamic params always use `$` prefix in the filename (e.g. `$tenantSlug.tsx`)
+- Layout files are always named `_layout.tsx` — the underscore prefix makes them layout routes, not page routes
+- Page components live in `src/pages/` and are imported into route files — route files are thin wrappers only, no JSX logic
+- TenantProvider and TenantGuard always come from the layout file, never from individual page files
+- Placeholder page components (`<div>Page name</div>`) are acceptable for this foundation pass — real content comes in subsequent prompts
+
+---
+
+*Gather — 00-foundation.md Part 7 — TanStack Start routing*
+*Updated: May 2026 — replaces React Router DOM version*
 ---
 
 ## PART 8 — Dark mode wiring
