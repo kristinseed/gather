@@ -415,6 +415,7 @@ Used at the top of every admin page below TopBar
 
 *Lovable uses TanStack Start with file-based routing. Routes are defined by file location in `src/routes/`. Do not create a React Router `<Routes>` table. Do not install react-router-dom.*
 
+Route prefix: all org/tenant routes use /o/$orgGroupSlug/$tenantSlug/ not bare slugs. /me/ for authenticated user profile. /platform/ for super admin. This is intentional — bare dynamic root segments break other routes.
 ---
 
 ## How TanStack Start file-based routing works
