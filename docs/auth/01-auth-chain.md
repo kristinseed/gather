@@ -1,4 +1,4 @@
-# Gathr — Auth Chain Spec
+# GetGathr — Auth Chain Spec
 **Item CA | Magic link auth — beta**
 Version 1.1 — May 2026
 
@@ -42,17 +42,17 @@ Platform-level routes:
 
 ## The invitation magic link
 
-When an admin imports contacts and confirms, Gathr:
+When an admin imports contacts and confirms, GetGathr:
 1. Creates an `invitation` row with a unique `token` (UUID)
-2. Sends an email via Resend from `invitations@mail.gathr.co`
-3. From name: `[Tenant name] via Gathr` (e.g. "Class of 1990 via Gathr")
+2. Sends an email via Resend from `invitations@mail.getgathr.co`
+3. From name: `[Tenant name] via GetGathr` (e.g. "Class of 1990 via GetGathr")
 
 The magic link URL embedded in the email:
 ```
-https://gathr.co/invite/{token}
+https://getgathr.co/invite/{token}
 ```
 
-This is NOT a Supabase magic link. It is Gathr's own token. Supabase auth is triggered after token validation, not before.
+This is NOT a Supabase magic link. It is GetGathr's own token. Supabase auth is triggered after token validation, not before.
 
 Token validity: 30 days default. Configurable per invitation (future).
 
