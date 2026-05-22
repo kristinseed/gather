@@ -1,4 +1,4 @@
-# Gathr — Contact Import Spec
+# GetGathr — Contact Import Spec
 **Item CB | Beta demo moment**
 Version 1.1 — May 2026
 
@@ -38,15 +38,15 @@ The flow must be fast, forgiving, and feel magical — not like a data import to
 All invitations send from the shared platform sender:
 
 ```
-From: [Tenant name] via Gathr <invitations@mail.gathr.co>
+From: [Tenant name] via GetGathr <invitations@mail.getgathr.co>
 ```
 
 Example for Class of 1990:
 ```
-From: Class of 1990 via Gathr <invitations@mail.gathr.co>
+From: Class of 1990 via GetGathr <invitations@mail.getgathr.co>
 ```
 
-This is hardcoded for beta. Per-org-group sender subdomains are roadmap item CG. Blocked on item A (Resend account + `mail.gathr.co` DNS verification at Porkbun).
+This is hardcoded for beta. Per-org-group sender subdomains are roadmap item CG. Blocked on item A (Resend account + `mail.getgathr.co` DNS verification at Porkbun).
 
 ---
 
