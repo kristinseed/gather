@@ -1,4 +1,4 @@
-# Gather — Lovable Master Prompt
+# Gathr — Lovable Master Prompt
 **Full product specification for front-end scaffolding**
 Version 3.2 — May 2026 — Added Section 12: Accessibility, inclusive design, and device strategy (complete)
 
@@ -17,7 +17,7 @@ Version 3.2 — May 2026 — Added Section 12: Accessibility, inclusive design, 
 
 ```
 PROMPT — App Overview
-Build a multi-tenant web application called Gather — a reunion and gathering platform where every organization looks and feels like itself, the organizer is guided rather than overwhelmed, and members feel like they belong rather than like they're being managed.
+Build a multi-tenant web application called Gathr — a reunion and gathring platform where every organization looks and feels like itself, the organizer is guided rather than overwhelmed, and members feel like they belong rather than like they're being managed.
 ```
 
 ### Tech stack
@@ -36,7 +36,7 @@ Build a multi-tenant web application called Gather — a reunion and gathering p
 
 - Multi-tenant SaaS — each org is an isolated tenant with its own data, branding, and members
 - Single codebase — tenant context loaded at runtime from Supabase based on org slug in the URL
-- URL structure: `gather.app/{org-group-slug}/{tenant-slug}` for tenant spaces, `gather.app/admin` for super admin
+- URL structure: `gathr.app/{org-group-slug}/{tenant-slug}` for tenant spaces, `gathr.app/admin` for super admin
 - Responsive web app — must work well on mobile (members) and desktop (admins); tablet is a first-class device for both
 - Dark mode: user-controlled toggle, preference stored on Person record, respect system preference on first visit
 - Font size preference: user-controlled, stored on Person record as `font_size_pref` (values: `default` / `large` / `larger`), silently saved on change, applied via rem scaling on `<html>`
@@ -48,7 +48,7 @@ Build a multi-tenant web application called Gather — a reunion and gathering p
 - **Trust by default** — members never feel marketed to, no dark patterns, no aggressive prompts
 - **Branded but structured** — tenant colors and logo overlay on a consistent layout system, never break the layout
 - **Progressive disclosure** — simple defaults, advanced settings revealed as admins get comfortable
-- **Generic language** — never hardcode 'school', 'class', or 'reunion' in UI copy; use 'organization', 'group', 'gathering' or drive labels from `org_group.type`
+- **Generic language** — never hardcode 'school', 'class', or 'reunion' in UI copy; use 'organization', 'group', 'gathring' or drive labels from `org_group.type`
 - **Built for all ages** — primary users are 45–70 years old. Generous sizing, clear labels, forgiving touch targets, no interaction that requires precision or speed
 
 ---
@@ -94,7 +94,7 @@ Every authenticated screen must resolve the user's context via this chain:
 ---
 
 ## Section 3 — Super Admin Screens
-> ⚑ `gather.app/admin` — only accessible to `platform_user` records with `super_admin` role.
+> ⚑ `gathr.app/admin` — only accessible to `platform_user` records with `super_admin` role.
 
 ### Super admin dashboard
 
@@ -186,7 +186,7 @@ Build the magic link join flow at /join/[token]. On load: look up invitation by 
 
 ```
 PROMPT — Theming
-Implement a tenant theming system using CSS custom properties. On app load, fetch the active branding record for the current tenant from Supabase (where active_to IS NULL or active_to > now()). Apply these CSS variables: --color-primary (primary_color), --color-secondary (secondary_color), --color-primary-dark (primary_color_dark for dark mode). All buttons, links, and accent elements must use var(--color-primary) not hardcoded colors. Logo: use branding.logo_url in the header. If no branding record exists, fall back to default Gather brand colors (#1E3A5F primary, #D4A853 accent).
+Implement a tenant theming system using CSS custom properties. On app load, fetch the active branding record for the current tenant from Supabase (where active_to IS NULL or active_to > now()). Apply these CSS variables: --color-primary (primary_color), --color-secondary (secondary_color), --color-primary-dark (primary_color_dark for dark mode). All buttons, links, and accent elements must use var(--color-primary) not hardcoded colors. Logo: use branding.logo_url in the header. If no branding record exists, fall back to default Gathr brand colors (#1E3A5F primary, #D4A853 accent).
 ```
 
 ### Default brand tokens
@@ -231,21 +231,21 @@ Wrap the app in a single `AuthProvider` at the root. Every component that needs 
 // useAuth() returns: { session, person, membership, loading }
 ```
 
-`person` is the Gather Person record joined from Supabase, not the raw Supabase auth user. `membership` is the active tenant membership for the current org slug. Both are resolved before any protected screen renders.
+`person` is the Gathr Person record joined from Supabase, not the raw Supabase auth user. `membership` is the active tenant membership for the current org slug. Both are resolved before any protected screen renders.
 
 ### 3. Theming — CSS custom properties only
 
 Never hardcode a color value anywhere in the codebase. All colors reference CSS custom properties defined in `src/styles/tokens.css`.
 
-Gather default tokens are always present. When a tenant org loads, inject their branding values on `:root` via a `useTenantBranding()` hook. Tenant colors only override the accent layer — never backgrounds, body text, or borders.
+gathr default tokens are always present. When a tenant org loads, inject their branding values on `:root` via a `useTenantBranding()` hook. Tenant colors only override the accent layer — never backgrounds, body text, or borders.
 
 ```css
 /* Always reference tokens, never raw values */
-color: var(--gather-text);           /* ✓ */
+color: var(--gathr-text);           /* ✓ */
 color: #2C2C2A;                      /* ✗ never */
 
 background: var(--tenant-primary);  /* ✓ for accent */
-background: var(--gather-surface);  /* ✓ for structure */
+background: var(--gathr-surface);  /* ✓ for structure */
 ```
 
 Dark mode is controlled by a `data-theme="dark"` attribute on `<html>`, toggled by the user preference stored on `Person.dark_mode_pref`. All tokens have dark variants. Never use a media query to drive dark mode — always follow the stored preference.
@@ -300,8 +300,8 @@ Every table uses `deleted_at` for soft deletes. Every query must filter `deleted
 
 ### 8. Typography and spacing — token-based only
 
-- Headings (H1, H2): serif font via `var(--gather-heading-font)`, weight 500 only
-- Body and UI labels: `var(--gather-body-font)`, weight 400 or 500 only
+- Headings (H1, H2): serif font via `var(--gathr-heading-font)`, weight 500 only
+- Body and UI labels: `var(--gathr-body-font)`, weight 400 or 500 only
 - Never use font-weight 600 or 700
 - Never use ALL CAPS or Title Case in UI labels — sentence case everywhere
 - Spacing follows Tailwind scale — no arbitrary pixel values in `className`
@@ -371,7 +371,7 @@ The three layout zones:
 
 **BottomNav tabs (member):** Home · Events · Directory · Profile
 
-Each tab: icon + label. Active tab uses `var(--tenant-primary)`. Inactive tabs use `var(--gather-text-muted)`. No badges or notification counts in v1.
+Each tab: icon + label. Active tab uses `var(--tenant-primary)`. Inactive tabs use `var(--gathr-text-muted)`. No badges or notification counts in v1.
 
 **Touch targets:** All tappable elements minimum 48×48px. Buttons full-width on mobile unless two side-by-side actions are needed (e.g. Accept / Decline).
 
@@ -420,7 +420,7 @@ Tablet is a primary device for admin users and a common secondary device for mem
 
 **Large screen behavior (1440px+):** Sidebar stays 240px. Content stays max-width 1200px centered. Extra space is background — never stretch content to fill it. Never add a second panel or auto-expand the sidebar at large viewports unless explicitly prompted.
 
-**Sidebar navigation (admin):** Fixed left, 240px. Vertical nav with icons. Active link: filled background `var(--gather-surface-raised)`, left border accent `var(--tenant-primary)`. Collapse to icon-only at 1024px. Grouped with muted section labels.
+**Sidebar navigation (admin):** Fixed left, 240px. Vertical nav with icons. Active link: filled background `var(--gathr-surface-raised)`, left border accent `var(--tenant-primary)`. Collapse to icon-only at 1024px. Grouped with muted section labels.
 
 **Tenant admin sidebar sections:**
 - Overview → Dashboard
@@ -475,7 +475,7 @@ Every route falls into one of four protection levels:
 
 ### 11f — Global error boundary pattern
 
-- App-level boundary (`AppErrorBoundary.tsx`): Gather logo centered, "Something went wrong. We're looking into it.", one Reload button. No stack trace to user.
+- App-level boundary (`AppErrorBoundary.tsx`): gathr logo centered, "Something went wrong. We're looking into it.", one Reload button. No stack trace to user.
 - Route-level boundary per shell (member, admin, platform): a broken admin screen does not take down the member shell.
 - Every Supabase `{ data, error }` response checked — never swallow silently. Translate errors to plain language.
 - Toast system: four variants (success/error/warning/info), top-right desktop, top-center mobile, 4-second auto-dismiss, error toasts persist. Never `alert()`.
@@ -484,7 +484,7 @@ Every route falls into one of four protection levels:
 
 **Four states every form must handle:** Idle → Submitting (spinner, fields disabled) → Success (toast + redirect or reset) → Error (field-level message, fields re-enabled).
 
-**Validation:** on blur, then again on submit. Required: "[Field name] is required." Format: "[Field name] is not valid." Error text below field in `var(--gather-error)`, 14px.
+**Validation:** on blur, then again on submit. Required: "[Field name] is required." Format: "[Field name] is not valid." Error text below field in `var(--gathr-error)`, 14px.
 
 **Optimistic updates:** RSVP status, profile edits, dark mode toggle, font size toggle, table assignments.
 
@@ -499,7 +499,7 @@ Every route falls into one of four protection levels:
 
 ### 12a — Who we are building for
 
-Gather's primary users are 45–70 years old. Many are accessing the app on a phone or tablet for the first time in a high-stakes moment — joining a reunion, RSVPing, seeing their friends' names. The UI must be forgiving, readable, and confidence-building on first contact. Younger admins and org staff are secondary users. Accessibility is not a compliance layer — it is the product.
+gathr's primary users are 45–70 years old. Many are accessing the app on a phone or tablet for the first time in a high-stakes moment — joining a reunion, RSVPing, seeing their friends' names. The UI must be forgiving, readable, and confidence-building on first contact. Younger admins and org staff are secondary users. Accessibility is not a compliance layer — it is the product.
 
 Design every component as if the user:
 - Has moderate vision reduction and benefits from larger, higher-contrast text
@@ -518,7 +518,7 @@ Every component must meet WCAG 2.1 AA. These are the rules Lovable must follow w
 - Large text (18px+ or 14px+ bold): minimum contrast ratio 3:1 against background
 - UI components (buttons, inputs, focus rings): minimum contrast ratio 3:1 against adjacent color
 - Never convey information by color alone — always pair color with text, icon, or pattern
-- Test every tenant branding combination: tenant primary color must meet contrast against `var(--gather-surface)` and white. If a tenant uploads a color that fails, show a platform warning in the branding editor
+- Test every tenant branding combination: tenant primary color must meet contrast against `var(--gathr-surface)` and white. If a tenant uploads a color that fails, show a platform warning in the branding editor
 
 **Focus states:**
 - Every interactive element (buttons, links, inputs, select menus, checkboxes, toggles) must have a visible focus ring
@@ -591,8 +591,8 @@ These rules apply to every UI component in the library. They are not optional ov
 - Minimum height: 48px on mobile, 44px on desktop
 - Label always above the input — never inside (placeholder only) or to the side on mobile
 - Label font size: `text-base` (1rem) minimum — never smaller than the input text
-- Helper text below input: `text-sm` (0.875rem), `var(--gather-text-muted)` color
-- Error text below input: `text-sm`, `var(--gather-error)` color, preceded by an error icon for non-color indication
+- Helper text below input: `text-sm` (0.875rem), `var(--gathr-text-muted)` color
+- Error text below input: `text-sm`, `var(--gathr-error)` color, preceded by an error icon for non-color indication
 - Input border: 1.5px, clearly visible against background. Focus border: 2px `var(--color-accent)`
 - No floating labels — they disappear when the user types and confuse older users
 
@@ -628,8 +628,8 @@ The app is built as an installable progressive web app from day one, with the se
 Web app manifest at `/public/manifest.json`:
 ```json
 {
-  "name": "Gather",
-  "short_name": "Gather",
+  "name": "gathr",
+  "short_name": "gathr",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FAFAF8",
